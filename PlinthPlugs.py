@@ -13,37 +13,33 @@ import multiprocessing as mp
 from kivy.app import App
 from kivy.uix.label import Label
 from kivy.core.window import Window
+from kivy.event import EventDispatcher
 from kivy.uix.boxlayout import BoxLayout
 from kivy.properties import ObjectProperty
 from kivy.uix.stacklayout import StackLayout
 
 class Fml(StackLayout):
-
-    # def __init__ (self, **kwargs):
-    #     super(Fml, self).__init__(**kwargs)
-    #     self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
-    #     self._keyboard.bind(on_key_down=self._on_keyboard_down)
-    #
     color_change = ObjectProperty()
-    #
-    # def _keyboard_closed(self):
-    #     self._keyboard.unbind(on_key_down=self._on_keyboard_down)
-    #     self._keyboard = None
-    #
-    # def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
-    #     if keycode:
-    #         print(keycode)
-    #     if keycode[1] == 'x':
-    #         self.color_change.text = 'X'
-    #         self.color_change.background_color = [1, 0, 0, 1]
-    #     return True
-    pass
+    def __init__ (self, **kwargs):
+        super(Fml, self).__init__(**kwargs)
+        # self.register_event_type('on_insertion')
+        g.setmode(g.BOARD)
+        g.setup(13, g.IN, pull_up_down=g.PUD_UP)
+
+    def update(self):
+        if g.input(13):
+            self.color_change.background_color = [1, 0, 0, 1]
+        else:
+            self.color_change.background_color = [0, 1, 0, 1]
+
 
 class PatcherApp(App):
-    pass
+    def build(self):
+        self.root = Fml()
+        return self.root
 
 
-class PlugCheck(object):
+class PlugCheck(Fml):
     def __init__(self):
         self.list = [7, 16, 13, 33, 37, 40]
         self.list += [8, 10, 15, 32, 35, 38]
@@ -54,6 +50,11 @@ class PlugCheck(object):
         g.setmode(g.BOARD)
         for i in self.list:
             g.setup(i, g.IN, pull_up_down=g.PUD_UP)
+
+        # self.ev = MyEventDispatcher()
+        # self.ev.bind(on_test=my_callback)
+        # self.ev.dispatch('on_test', 'test_message')
+
 
     def horse(self, channel):
         print('horse {}'.format(channel))
@@ -67,6 +68,11 @@ class PlugCheck(object):
         if chan not in self.state:
             self.state.append(chan)
             print(chan)
+            if chan == 13:
+                app = App.get_running_app().root
+                print("APP {}".format(app))
+                print("ids? : {}".format(app.ids))
+
 
     def run(self):
         print('run: running')
@@ -81,12 +87,10 @@ class PlugCheck(object):
 
 
 if __name__ == "__main__":
-    Foo = PlugCheck()
-    # Bar = PatcherApp()
-    # Foo.run()
-    p = mp.Process(target=Foo.run, args=())
-    p.start()
+    # Foo = PlugCheck()
+    #
+    # p = mp.Process(target=Foo.run, args=())
+    # p.start()
+
     q = mp.Process(target=PatcherApp().run(), args=())
     q.start()
-    print('and then')
-    # PatcherApp().run()
