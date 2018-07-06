@@ -18,19 +18,22 @@ bg_color = (1,0,0,1)
 def superCB(chan, **kwargs):
     if chan in good_list:
         if kwargs['insert']:
+            print("insert: {}".format(chan))
             super_state.append(chan)
         else:
+            print("remove: {}".format(chan))
             super_state.remove(chan)
-            print('remove')
-            return [0.5,0.5,0.5,1]
-        print("super list: {}".format(super_state))
-        return [0, 1, 0, 1]
+            return ([0.5, 0.5, 0.5, 1], False)
+        if set(good_list) == set(good_list).intersection(super_state):
+            print("ALL the right plugs!")
+            return ([0, 1, 0, 1], True)
+        return ([0, 1, 0, 1], False)
     else:
         if kwargs['insert']:
             print("super list: {}".format(super_state))
-            return [1, 0, 0, 1]
+            return ([1, 0, 0, 1], False)
         else:
-            return [0.5,0.5,0.5,1]
+            return ([0.5,0.5,0.5,1], False)
 
 
 
@@ -42,24 +45,30 @@ class ButtTest(Button):
             self.text = str(self.num)
             g.setup(self.num, g.IN, pull_up_down=g.PUD_UP)
             self.lay = kwargs['lay']
+            self.big_background_color = [0.1, 0.1, 0.1, 1]
+
+    def changeBackGround(self, r, g, b, a):
+        with self.lay.canvas.before:
+            Color(r, g, b, a)
+            self.rect = Rectangle(size=(1900, 1200), pos=self.lay.pos)
 
     def update(self, dt):
         if g.input(self.num):
             if self.num not in state:
                 state.append(self.num)
-                print('something {}'.format(bg_color))
-                self.background_color = superCB(chan=self.num, insert=True)
-                # with self.lay.canvas.before:
-                #     Color(big_bg_color)
-                #     self.rect = Rectangle(size=(1900,1200), pos=self.lay.pos)
+                (little, big) = superCB(chan=self.num, insert=True)
+                self.background_color = little
+                if big:
+                    self.changeBackGround(0, 1, 0, 1)
+                else:
+                    self.changeBackGround(0.1, 0.1, 0.1, 1)
         else:
             if self.num in state:
                 state.remove(self.num)
-                print('nope {}'.format(bg_color))
-                self.background_color = superCB(chan=self.num, insert=False)
-                # with self.lay.canvas.before:
-                #     Color(big_bg_color)
-                #     self.rect = Rectangle(size=(1900,1200), pos=self.lay.pos)
+                (little, big) = superCB(chan=self.num, insert=False)
+                self.background_color = little
+                if not big:
+                    self.changeBackGround(0.1, 0.1, 0.1, 1)
 
 
 class GoManApp(App):
