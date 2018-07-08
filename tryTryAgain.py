@@ -1,18 +1,21 @@
 import RPi.GPIO as g
+import requests
+
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.graphics import Color, Rectangle
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.stacklayout import StackLayout
 
 g.setmode(g.BOARD)
 state = []
 good_list = [33, 26, 23, 38]
-super_state= []
-bg_color = (1,0,0,1)
+super_state = []
+bg_color = (1, 0, 0, 1)
 
+baseURL = "https://darkopstest.azurewebsites.net/"
 
 
 def superCB(chan, **kwargs):
@@ -33,9 +36,20 @@ def superCB(chan, **kwargs):
             print("super list: {}".format(super_state))
             return ([1, 0, 0, 1], False)
         else:
-            return ([0.5,0.5,0.5,1], False)
+            return ([0.5, 0.5, 0.5, 1], False)
 
 
+class PlinthBox(GridLayout):
+    pass
+
+
+class SocialShareButton(GridLayout):
+    def start_stop_social_share(self, but_num):
+        ret = requests.get(baseURL + 'api/record/{}'.format(but_num))
+        if ret.status_code == 200:
+            print("But_num {} returned: {}".format(but_num, ret.json()))
+        else:
+            print ret.status_code
 
 class ButtTest(Button):
     def __init__(self, **kwargs):
@@ -79,43 +93,53 @@ class GoManApp(App):
         lay.add_widget(foo)
 
     def build(self):
-        layout = StackLayout()
-        layout.orientation = 'lr-tb'
-        layout.size_hint_x = None
-        layout.width = "80dp"
+        layout = GridLayout()
+        layout.cols = 7
+        layout.rows = 2
         with layout.canvas.before:
             Color(0.1, 0.1, 0.1, 1)
             self.rect = Rectangle(size=(1900,1200), pos=layout.pos)
 
         x = [13, 7, 33, 16, 37, 40]
+        a = PlinthBox()
         for i in x:
             exec("butt{} = ButtTest(num={}, lay=layout)".format(i, i))
             exec("Clock.schedule_interval(butt{}.update, 1.0/10.0)".format(i))
-            exec("layout.add_widget(butt{})".format(i))
+            exec("a.add_widget(butt{})".format(i))
+        layout.add_widget(a)
 
         self.add_space(layout)
 
         y = [24, 21, 23, 19, 11, 12]
+        b = PlinthBox()
         for i in y:
             exec("butt{} = ButtTest(num={}, lay=layout)".format(i, i))
             exec("Clock.schedule_interval(butt{}.update, 1.0/10.0)".format(i))
-            exec("layout.add_widget(butt{})".format(i))
+            exec("b.add_widget(butt{})".format(i))
+        layout.add_widget(b)
 
         self.add_space(layout)
 
         w = [18, 29, 26, 22, 31, 36]
+        c = PlinthBox()
         for i in w:
             exec("butt{} = ButtTest(num={}, lay=layout)".format(i, i))
             exec("Clock.schedule_interval(butt{}.update, 1.0/10.0)".format(i))
-            exec("layout.add_widget(butt{})".format(i))
+            exec("c.add_widget(butt{})".format(i))
+        layout.add_widget(c)
 
         self.add_space(layout)
 
         z = [8, 15, 38, 35, 32, 10]
+        d = PlinthBox()
         for i in z:
             exec("butt{} = ButtTest(num={}, lay=layout)".format(i, i))
             exec("Clock.schedule_interval(butt{}.update, 1.0/10.0)".format(i))
-            exec("layout.add_widget(butt{})".format(i))
+            exec("d.add_widget(butt{})".format(i))
+        layout.add_widget(d)
+
+        buttons = SocialShareButton()
+        layout.add_widget(buttons)
         return layout
 
 
