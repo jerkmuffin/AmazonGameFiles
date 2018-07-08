@@ -6,4 +6,3 @@ uninvert mouse y axis for Kivy on RPi
 - edit `/usr/local/lib/python2.7/dist-packages/kivy/input/providers/hidinput.py`
 - update around line 417 to the following `invert_y = int(bool(drs('invert_y', 0)))`
 
-fml?
