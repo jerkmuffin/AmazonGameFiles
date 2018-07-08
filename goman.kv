@@ -1,16 +1,29 @@
-ButtTest:
 <ButtTest>:
     background_normal: ''
-    background_color: 0.5,0.5,0.5,1
+    background_color: 0.5, 0.5, 0.5, 1
     size_hint: [None, None]
-    width: "40dp"
-    height: "40dp"
+    width: "80dp"
+    height: "80dp"
 
 
-<largelayout>:
-    canvas:
-        Color:
-            rgb: [0, 0, 1]
-        Rectangle:
-            pos: self.pos
-            size: self.size
+<PlinthBox>:
+    cols: 2
+
+<SocialShareButton>:
+    rows: 1
+    Button:
+        background_normal: ''
+        background_color: [0, 0, 1, 1]
+        size_hint: [None, None]
+        size: ['600dp', '240dp']
+        font_size: 48
+        text: 'Social Share 2'
+        on_press: root.start_stop_social_share(2)
+    Button:
+        background_normal: ''
+        background_color: [1, 0, 0, 1]
+        size_hint: [None, None]
+        size: ['600dp', '240dp']
+        font_size: 48
+        text: 'Social Share 3'
+        on_press: root.start_stop_social_share(3)
