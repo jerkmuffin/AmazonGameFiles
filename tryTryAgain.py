@@ -9,6 +9,8 @@ from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.stacklayout import StackLayout
 
+from pygame import mixer as mix
+
 g.setmode(g.BOARD)
 state = []
 good_list = [33, 26, 23, 38]
@@ -18,14 +20,32 @@ bg_color = (1, 0, 0, 1)
 baseURL = "https://darkopstest.azurewebsites.net/"
 
 
+class PlaySounds(object):
+    def __init__(self):
+        mix.init()
+        self.wrong = mix.Sound('wrong.wav')
+        self.right = mix.Sound('right.wav')
+
+    def right_sound(self):
+        self.right.play()
+
+    def wrong_sound(self):
+        self.wrong.play()
+
+
+sound = PlaySounds()
+
+
 def superCB(chan, **kwargs):
     if chan in good_list:
         if kwargs['insert']:
+            sound.right_sound()
             print("insert: {}".format(chan))
             super_state.append(chan)
         else:
             print("remove: {}".format(chan))
             super_state.remove(chan)
+
             return ([0.5, 0.5, 0.5, 1], False)
         if set(good_list) == set(good_list).intersection(super_state):
             print("ALL the right plugs!")
@@ -33,9 +53,11 @@ def superCB(chan, **kwargs):
         return ([0, 1, 0, 1], False)
     else:
         if kwargs['insert']:
+            sound.wrong_sound()
             print("super list: {}".format(super_state))
             return ([1, 0, 0, 1], False)
         else:
+
             return ([0.5, 0.5, 0.5, 1], False)
 
 
@@ -144,4 +166,8 @@ class GoManApp(App):
 
 
 if __name__ == "__main__":
-    GoManApp().run()
+    try:
+        GoManApp().run()
+    except KeyboardInterrupt:
+        App.get_running_app().stop()
+        g.cleanup()
