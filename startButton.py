@@ -2,9 +2,9 @@ import RPi.GPIO as g
 import time
 import requests
 
-
+PIN = 8 # senser PIN Hook the other side to GROUND
 g.setmode(g.BOARD)
-g.setup(8, g.IN, pull_up_down=g.PUD_UP)
+g.setup(PIN, g.IN, pull_up_down=g.PUD_UP)
 
 
 class StartTimerButton(object):
@@ -24,11 +24,11 @@ class StartTimerButton(object):
 
     def run(self):
         while True:
-            if not g.input(8) and not self.press:
+            if not g.input(self.bp) and not self.press:
                 self.press = True
                 self._call_api()
             else:
                 time.sleep(0.1)
 
 if __name__ == "__main__":
-    StartTimerButton(8).run()
+    StartTimerButton(PIN).run()

@@ -2,9 +2,9 @@ import RPi.GPIO as g
 import time
 import requests
 
-
+PIN = 8 # senser PIN Hook the other side to GROUND
 g.setmode(g.BOARD)
-g.setup(8, g.IN, pull_up_down=g.PUD_UP)
+g.setup(PIN, g.IN, pull_up_down=g.PUD_UP)
 
 
 class StopTimerButton(object):
@@ -24,15 +24,15 @@ class StopTimerButton(object):
 
     def run(self):
         while True:
-            if not g.input(8) and self.latch:
+            if not g.input(self.bp) and self.latch:
                 self._call_api()
                 self.latch = False
                 print('...unlatching')
-            elif g.input(8):
+            elif g.input(self.bp):
                 print("locked")
                 self.latch = True
             else:
                 time.sleep(0.1)
 
 if __name__ == "__main__":
-    StopTimerButton(8).run()
+    StopTimerButton(PIN).run()
