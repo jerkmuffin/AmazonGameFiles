@@ -13,7 +13,7 @@ from pygame import mixer as mix
 
 g.setmode(g.BOARD)
 state = []
-good_list = [33, 26, 23, 38]
+good_list = [35, 40, 24, 29]
 super_state = []
 bg_color = (1, 0, 0, 1)
 
@@ -49,11 +49,18 @@ def superCB(chan, **kwargs):
             return ([0.5, 0.5, 0.5, 1], False)
         if set(good_list) == set(good_list).intersection(super_state):
             print("ALL the right plugs!")
+
+            ret = requests.get(baseURL + 'api/record/{}'.format(1))
+            if ret.status_code == 200:
+                print("But_num {} returned: {}".format(but_num, ret.json()))
+            else:
+                print ret.status_code
             return ([0, 1, 0, 1], True)
         return ([0, 1, 0, 1], False)
     else:
         if kwargs['insert']:
             sound.wrong_sound()
+            print("insert: {}".format(chan))
             print("super list: {}".format(super_state))
             return ([1, 0, 0, 1], False)
         else:
