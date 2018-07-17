@@ -1,3 +1,5 @@
+import sys
+
 import RPi.GPIO as g
 import requests
 
@@ -40,28 +42,28 @@ def superCB(chan, **kwargs):
     if chan in good_list:
         if kwargs['insert']:
             sound.right_sound()
-            print("insert: {}".format(chan))
+            sys.stdout.write("insert: {}\n".format(chan))
             super_state.append(chan)
         else:
-            print("remove: {}".format(chan))
+            sys.stdout.write("remove: {}\n".format(chan))
             super_state.remove(chan)
 
             return ([0.5, 0.5, 0.5, 1], False)
         if set(good_list) == set(good_list).intersection(super_state):
-            print("ALL the right plugs!")
+            sys.stdout.write("ALL the right plugs!\n")
 
             ret = requests.get(baseURL + 'api/record/{}'.format(1))
             if ret.status_code == 200:
-                print("social share returned: {}".format(ret.json()))
+                sys.stdout.write("social share returned: {}\n".format(ret.json()))
             else:
-                print ret.status_code
+                sys.stdout.write(ret.status_code)
             return ([0, 1, 0, 1], True)
         return ([0, 1, 0, 1], False)
     else:
         if kwargs['insert']:
             sound.wrong_sound()
-            print("insert: {}".format(chan))
-            print("super list: {}".format(super_state))
+            sys.stdout.write("insert: {}\n".format(chan))
+            sys.stdout.write("super list: {}\n".format(super_state))
             return ([1, 0, 0, 1], False)
         else:
 
@@ -76,9 +78,9 @@ class SocialShareButton(GridLayout):
     def start_stop_social_share(self, but_num):
         ret = requests.get(baseURL + 'api/record/{}'.format(but_num))
         if ret.status_code == 200:
-            print("Social share returned: {}".format(ret.json()))
+            sys.stdout.write("Social share returned: {}\n".format(ret.json()))
         else:
-            print ret.status_code
+            sys.stdout.write(ret.status_code)
 
 class ButtTest(Button):
     def __init__(self, **kwargs):
