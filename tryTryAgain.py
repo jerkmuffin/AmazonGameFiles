@@ -52,7 +52,7 @@ def superCB(chan, **kwargs):
 
             ret = requests.get(baseURL + 'api/record/{}'.format(1))
             if ret.status_code == 200:
-                print("But_num {} returned: {}".format(but_num, ret.json()))
+                print("social share returned: {}".format(ret.json()))
             else:
                 print ret.status_code
             return ([0, 1, 0, 1], True)
