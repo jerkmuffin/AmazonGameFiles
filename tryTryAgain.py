@@ -76,7 +76,7 @@ class SocialShareButton(GridLayout):
     def start_stop_social_share(self, but_num):
         ret = requests.get(baseURL + 'api/record/{}'.format(but_num))
         if ret.status_code == 200:
-            print("But_num {} returned: {}".format(but_num, ret.json()))
+            print("Social share returned: {}".format(ret.json()))
         else:
             print ret.status_code
 
