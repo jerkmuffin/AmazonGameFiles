@@ -1,3 +1,5 @@
+import sys
+
 import RPi.GPIO as g
 import requests
 
@@ -9,33 +11,62 @@ from kivy.uix.button import Button
 from kivy.uix.gridlayout import GridLayout
 from kivy.uix.stacklayout import StackLayout
 
+from pygame import mixer as mix
+
 g.setmode(g.BOARD)
 state = []
-good_list = [33, 26, 23, 38]
+good_list = [35, 40, 24, 29]
 super_state = []
 bg_color = (1, 0, 0, 1)
 
 baseURL = "https://darkopstest.azurewebsites.net/"
 
 
+class PlaySounds(object):
+    def __init__(self):
+        mix.init()
+        self.wrong = mix.Sound('wrong.wav')
+        self.right = mix.Sound('right.wav')
+
+    def right_sound(self):
+        self.right.play()
+
+    def wrong_sound(self):
+        self.wrong.play()
+
+
+sound = PlaySounds()
+
+
 def superCB(chan, **kwargs):
     if chan in good_list:
         if kwargs['insert']:
-            print("insert: {}".format(chan))
+            sound.right_sound()
+            sys.stdout.write("insert: {}\n".format(chan))
             super_state.append(chan)
         else:
-            print("remove: {}".format(chan))
+            sys.stdout.write("remove: {}\n".format(chan))
             super_state.remove(chan)
+
             return ([0.5, 0.5, 0.5, 1], False)
         if set(good_list) == set(good_list).intersection(super_state):
-            print("ALL the right plugs!")
+            sys.stdout.write("ALL the right plugs!\n")
+
+            ret = requests.get(baseURL + 'api/record/{}'.format(1))
+            if ret.status_code == 200:
+                sys.stdout.write("social share returned: {}\n".format(ret.json()))
+            else:
+                sys.stdout.write(ret.status_code)
             return ([0, 1, 0, 1], True)
         return ([0, 1, 0, 1], False)
     else:
         if kwargs['insert']:
-            print("super list: {}".format(super_state))
+            sound.wrong_sound()
+            sys.stdout.write("insert: {}\n".format(chan))
+            sys.stdout.write("super list: {}\n".format(super_state))
             return ([1, 0, 0, 1], False)
         else:
+
             return ([0.5, 0.5, 0.5, 1], False)
 
 
@@ -47,9 +78,9 @@ class SocialShareButton(GridLayout):
     def start_stop_social_share(self, but_num):
         ret = requests.get(baseURL + 'api/record/{}'.format(but_num))
         if ret.status_code == 200:
-            print("But_num {} returned: {}".format(but_num, ret.json()))
+            sys.stdout.write("Social share returned: {}\n".format(ret.json()))
         else:
-            print ret.status_code
+            sys.stdout.write(ret.status_code)
 
 class ButtTest(Button):
     def __init__(self, **kwargs):
@@ -144,4 +175,8 @@ class GoManApp(App):
 
 
 if __name__ == "__main__":
-    GoManApp().run()
+    try:
+        GoManApp().run()
+    except KeyboardInterrupt:
+        App.get_running_app().stop()
+        g.cleanup()
