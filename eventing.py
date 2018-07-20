@@ -23,14 +23,17 @@ success = mix.Sound('success.ogg')
 
 all_good = False
 def cb(chan):
+    global switch_state
     if not g.input(chan):
         if chan not in magneted_chans:
             magneted_chans.append(chan)
             right.play()
+            print('switch: {}'.format(switch_state))
     else:
         if chan in magneted_chans:
             magneted_chans.remove(chan)
             wrong.play()
+            print('switch: {}'.format(switch_state))
     print("{} are magneted".format(magneted_chans))
 
 
@@ -46,22 +49,22 @@ while True:
             if all_good == False:
                 success.play()
                 all_good = True
-            print('testing button')
+            #print('testing button')
             g.output(button_led, 0)
             if not switch_state:
-                print('relay off')
+                #print('relay off')
                 if g.input(button_switch) == 0:
-                    print('button pressed relay was off')
+                    #print('button pressed relay was off')
                     g.output(relay, 1)
                     switch_state = True
-                    time.sleep(2)
+                    time.sleep(0.5)
             if switch_state:
-                print('relay on')
+                #print('relay on')
                 if g.input(button_switch) == 0:
-                    print('button pressed relay was on')
+                    #print('button pressed relay was on')
                     g.output(relay, 0)
                     switch_state = False
-                    time.sleep(2)
+                    time.sleep(0.5)
 
         else:
             g.output(button_led, 1)
